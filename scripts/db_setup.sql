@@ -4,44 +4,71 @@ CREATE TABLE users
 (
   user_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
   email varchar(255) UNIQUE,
-  name varchar(255),
-  hash varchar(255),
+  handle varchar(255) UNIQUE,
+  phone varchar(255) UNIQUE,
+  password_hash varchar(255),
   recovery_hash varchar(255),
+  prefer_email boolean,
+  prefer_phone boolean,
+  avatar varchar(255),
+  contact_frequency varchar(255),
   created_at timestamp,
   updated_at timestamp
 );
 
-CREATE TABLE charities
+CREATE TABLE user_relations
 (
-  charity_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-  name varchar(255),
-  slug varchar(255) UNIQUE,
-  subtitle varchar(255),
-  summary varchar(255),
-  content text,
-  media_url varchar(255),
+  user_relation_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
+  castor_id uuid REFERENCES users,
+  pollux_id uuid REFERENCES users,
+  blocked boolean,
   created_at timestamp,
   updated_at timestamp
 );
 
-CREATE TABLE volunteers
+CREATE TABLE user_event_templates
 (
-  volunteer_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
+  user_event_template_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
   user_id uuid REFERENCES users,
-  charity_id uuid REFERENCES charities,
+  event_template_id uuid REFERENCES event_templates,
   admin boolean,
-  member boolean,
+  blocked boolean,
+  banned boolean,
+  followed boolean,
   created_at timestamp,
   updated_at timestamp
 );
 
-CREATE TABLE donees
+CREATE TABLE event_templates
 (
-  volunteer_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
+  event_template_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
+  name varchar(255),
+  type varchar(255) UNIQUE,
+  recurring varchar(255),
+  avatar varchar(255),
+  degrees int,
+  created_at timestamp,
+  updated_at timestamp
+);
+
+CREATE TABLE events
+(
+  event_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
+  event_template_id uuid REFERENCES event_templates,
+  description text,
+  location point,
+  image varchar(255),
+  created_at timestamp,
+  updated_at timestamp
+);
+
+CREATE TABLE user_events
+(
+  user_event_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
   user_id uuid REFERENCES users,
-  charity_id uuid REFERENCES charities,
-  raised money,
-  goal money,
+  event_id uuid REFERENCES events,
+  accepted boolean,
+  blocked boolean,
   created_at timestamp,
   updated_at timestamp
 );

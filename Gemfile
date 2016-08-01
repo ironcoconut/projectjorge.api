@@ -7,10 +7,14 @@ gem 'thin', '~> 1.6.4'
 gem 'json', '~> 1.8.1'
 gem 'sinatra', '~> 1.4.7'
 gem 'activerecord', '~> 4.2', '>= 4.2.5.1'
-gem 'db-evolve', '~> 0.1.4'
 gem 'pg'
 gem 'rails'
+gem 'sinatra-contrib'
+gem 'jwt'
+gem 'bcrypt'
+gem 'rack-contrib'
 
 group :test do
   gem 'minitest'
+  gem 'database_cleaner'
 end
