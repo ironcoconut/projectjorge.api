@@ -47,8 +47,8 @@ class UserTest < PJTest
     assert last_response.ok?, error_message
   end
   def test_user_friend
+    login_user
     data = {email: 'tim@t.com'}
-    user = login_user
     post "users/friend", data.to_json
     assert last_response.ok?, error_message
   end
