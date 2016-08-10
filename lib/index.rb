@@ -1,6 +1,5 @@
 require './lib/interactors/index.rb'
 require './lib/models/index.rb'
-require './lib/policies/index.rb'
 require './lib/presenters/index.rb'
 require './lib/routes/index.rb'
 require './lib/services/index.rb'

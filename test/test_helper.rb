@@ -37,4 +37,23 @@ class PJTest < MiniTest::Test
     set_cookie("user_token=#{rack_mock_session.cookie_jar['user_token']}")
     return user
   end
+
+  def error_message
+    "#{last_response.status}: #{last_response.body}"
+  end
+
+  def body
+    @body ||= JSON.parse(last_response.body)
+  end
+
+  def create_event_template opts={}
+    @@et_count ||= 0
+    @@et_count += 1
+    default_opts = { name: "et#{@@et_count}" }
+    return EventTemplateModel.create!(default_opts.merge(opts))
+  end
+
+  def create_event_template_admin event, user
+    return UserEventTemplateModel.create!(admin: true, event_template_id: event.event_template_id, user_id: user.user_id)
+  end
 end

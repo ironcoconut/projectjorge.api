@@ -1,13 +1,7 @@
 require 'json'
 require './test/test_helper.rb'
 
-class StatsTest < PJTest
-  def error_message
-    "#{last_response.status}: #{last_response.body}"
-  end
-  def body
-    @body ||= JSON.parse(last_response.body)
-  end
+class UserTest < PJTest
   def test_login_with_email
     secret = PJApi.settings.secret
     user = create_user

@@ -3,7 +3,7 @@ require 'yaml'
 require 'bcrypt'
 
 ActiveRecord::Base.configurations = YAML::load_file(File.join(__dir__, '../../config/database.yml'))
-ActiveRecord::Base.establish_connection(ENV['RACK_ENV'].to_sym ||:development)
+ActiveRecord::Base.establish_connection((ENV['RACK_ENV'] ||:development).to_sym)
 ActiveRecord::Base.logger = Logger.new(STDOUT) if ENV['RACK_ENV'] == :development
 
 class UserModel < ActiveRecord::Base

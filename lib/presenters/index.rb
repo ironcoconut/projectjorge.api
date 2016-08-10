@@ -1,7 +1,24 @@
-class UserPresenter
-  def initialize user
-    @user = user
+class Presenter
+  def initialize data
+    @data = data
   end
+
+  private
+
+  def build_hash *items
+    mapped = items.map do |i| 
+      item = @data.send(i)
+      if !item.nil?
+        [i, item]
+      else
+        nil
+      end
+    end
+    return mapped.compact.to_h
+  end
+end
+
+class UserPresenter < Presenter
   def user_token
     build_hash('user_id', 'handle')
   end
@@ -14,18 +31,10 @@ class UserPresenter
   def block
     build_hash('handle')
   end
+end
 
-  private
-
-  def build_hash *items
-    mapped = items.map do |i| 
-      item = @user.send(i)
-      if !item.nil?
-        [i, item]
-      else
-        nil
-      end
-    end
-    return mapped.compact.to_h
+class EventTemplatePresenter < Presenter
+  def event_template
+    build_hash('name')
   end
 end

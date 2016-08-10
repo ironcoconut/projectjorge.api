@@ -18,11 +18,19 @@ class PJApi < Sinatra::Base
     def interactor_data()
       @interactor_data ||= {
         body: request_body,
-        token: token,
+        params: params,
+        token: token
       }
     end
     def request_body() 
-      @request_body ||= JSON.parse(request.body.read) if !request.body.nil?
+      @request_body ||= begin
+                          data = request.body.read
+                          if data.present?
+                            JSON.parse(data)
+                          else
+                            {}
+                          end
+                        end
     end
     def token()
       @token ||= cookies[:user_token].nil? ? nil : JWT.decode(cookies[:user_token], PJApi.settings.secret, true, { :algorithm => 'HS256' }).first
@@ -36,8 +44,7 @@ class PJApi < Sinatra::Base
         }
       )
     end
-    def user_action(action, data=nil)
-      interactor = UserInteractor.new(data || interactor_data).send(action)
+    def base_action(interactor)
       if interactor.success?
         json interactor.response
       else
@@ -45,8 +52,7 @@ class PJApi < Sinatra::Base
         body interactor.errors
       end
     end
-    def user_auth(action, data=nil)
-      interactor = UserInteractor.new(data || interactor_data).send(action)
+    def user_auth(interactor)
       if interactor.success?
         set_token(interactor.response)
         json interactor.response
@@ -66,11 +72,23 @@ class PJApi < Sinatra::Base
   end
 
   namespace "/users" do
-    post("/login")  { user_auth(:login) }
-    post("/friend") { user_action(:friend) }
-    post("/block")  { user_action(:block) }
-    get()           { user_action(:find, {body: {}, token: token}) }
-    put()           { user_action(:update) }
-    post()          { user_auth(:register) }
+    post("/login")  { user_auth(Interactor::UserLogin.new(interactor_data)) }
+    post("/friend") { base_action(Interactor::UserFriend.new(interactor_data)) }
+    post("/block")  { base_action(Interactor::UserBlock.new(interactor_data)) }
+    get()           { base_action(Interactor::UserFind.new(interactor_data)) }
+    put()           { base_action(Interactor::UserUpdate.new(interactor_data)) }
+    post()          { user_auth(Interactor::UserRegistration.new(interactor_data)) }
+  end
+
+  namespace "/event-templates" do
+    post("/:id/appoint") { base_action(Interactor::EventTemplateAppoint.new(interactor_data)) }
+    post("/:id/block")   { base_action(Interactor::EventTemplateBlock.new(interactor_data)) }
+    post("/:id/ban")     { base_action(Interactor::EventTemplateBan.new(interactor_data)) }
+    post("/:id/follow")  { base_action(Interactor::EventTemplateFollow.new(interactor_data)) }
+    post("/:id/invite")  { base_action(Interactor::EventTemplateInvite.new(interactor_data)) }
+    get("/:id")          { base_action(Interactor::EventTemplateFindOne.new(interactor_data)) }
+    post("/:id")         { base_action(Interactor::EventTemplateUpdate.new(interactor_data)) }
+    get()                { base_action(Interactor::EventTemplateFind.new(interactor_data)) }
+    put()                { base_action(Interactor::EventTemplateCreate.new(interactor_data)) }
   end
 end
