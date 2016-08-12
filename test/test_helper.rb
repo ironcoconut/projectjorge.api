@@ -1,4 +1,5 @@
 ENV['RACK_ENV'] = 'test'
+# TODO: what is setting verbose to true?
 $VERBOSE = false
 require 'minitest/autorun'
 require 'rack/test'

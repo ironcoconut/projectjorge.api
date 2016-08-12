@@ -15,3 +15,5 @@ require __dir__+'/event_template_appoint_interactor.rb'
 require __dir__+'/event_template_block_interactor.rb'
 require __dir__+'/event_template_ban_interactor.rb'
 require __dir__+'/event_template_follow_interactor.rb'
+
+require __dir__+'/event_create_interactor.rb'

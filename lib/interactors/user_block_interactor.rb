@@ -13,19 +13,16 @@ module Interactor
     end
 
     def relation
-      @relation ||= UserRelationModel.find_or_create_by(castor_id: user.id, pollux_id: current_user.id)
+      @relation ||= UserGraph.create_relationship(current_user.id, user.id, :blocked).first
     end
 
     def authorize
       check_current_user
       check_errors(user)
-      check_errors(relation)
+      check_present(relation, "Unable to block user")
     end
 
     def main
-      relation.blocked = true
-      relation.save
-      check_errors(relation)
     end
 
     def present

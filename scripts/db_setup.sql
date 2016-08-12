@@ -30,7 +30,6 @@ CREATE TABLE event_templates
 (
   event_template_id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
   name varchar(255),
-  type varchar(255) UNIQUE,
   recurring varchar(255),
   avatar varchar(255),
   degrees int,

@@ -23,7 +23,10 @@ Graph::Base.establish_connection(ENV['RACK_ENV'] || 'development')
 
 class UserGraph < Graph::Base
   def self.create_relationship(castor_id, pollux_id, relationship)
-    connection.query("merge (c:User {id: '#{castor_id}'}) merge (p:User {id: '#{pollux_id}'}) merge (c)-[:#{relationship.to_s.upcase}]->(p)")
+    connection.query("merge (c:User {id: '#{castor_id}'}) 
+                      merge (p:User {id: '#{pollux_id}'}) 
+                      merge (c)-[:#{relationship.to_s.upcase}]->(p)
+                      return c.id as castor_id, p.id as pollux_id")
   end
   def self.load_relations(id, min=0, max=2)
     connection.query("match p=(b {id:'#{id}'})-[*#{min}..#{max}]-(m) 

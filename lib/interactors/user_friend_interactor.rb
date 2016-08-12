@@ -13,13 +13,13 @@ module Interactor
     end
 
     def relation
-      @relation ||= UserRelationModel.find_or_create_by(castor_id: current_user.id, pollux_id: user.id)
+      @relation ||= UserGraph.create_relationship(current_user.id, user.id, :friended).first
     end
 
     def authorize
       check_current_user
       check_errors(user)
-      check_errors(relation)
+      check_present(relation, "Unable to create friendship")
     end
 
     def main

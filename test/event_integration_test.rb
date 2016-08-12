@@ -3,6 +3,18 @@ require './test/test_helper.rb'
 
 class EventIntegrationTest < PJTest
   def test_create_new
+    login_user
+    data = {
+      name: 'event',
+      recurring: 'weekly',
+      avatar: 'some url',
+      degrees: 2,
+      description: 'aweluck',
+      location: [1,2],
+      image: 'some url'
+    }
+    put '/events', data.to_json
+    assert last_response.ok?, error_message
   end
 
   def test_create_from_template

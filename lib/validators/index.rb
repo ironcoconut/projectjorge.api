@@ -28,6 +28,18 @@ class Validator
       end
     end
   end
+  def coerce_point *items
+    items.each do |i|
+      item = @body[i]
+      if !item.nil?
+        if item.length === 2
+          @results[i] = item
+        else
+          @errors.push("Wrong number of points")
+        end
+      end
+    end
+  end
   def all_present *items
     if (items - @results.keys).length != 0
       @errors.push("All not present: #{items.join(', ')}")
