@@ -1,0 +1,7 @@
+development:
+  path:     http://localhost:7474
+  username: neo4j
+  password: bullshit
+
+test:
+  path:     http://localhost:7575

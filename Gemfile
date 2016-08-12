@@ -13,6 +13,7 @@ gem 'sinatra-contrib'
 gem 'jwt'
 gem 'bcrypt'
 gem 'rack-contrib'
+gem 'neo4j-core'
 
 group :test do
   gem 'minitest'

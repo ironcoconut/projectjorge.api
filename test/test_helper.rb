@@ -1,11 +1,11 @@
 ENV['RACK_ENV'] = 'test'
+$VERBOSE = false
 require 'minitest/autorun'
 require 'rack/test'
 require 'database_cleaner'
 require './lib/index'
 require 'json'
 require 'pry'
-
 
 DatabaseCleaner.strategy = :truncation
 
@@ -19,6 +19,7 @@ class PJTest < MiniTest::Test
 
   def before_teardown
     DatabaseCleaner.clean
+    Graph::Base.connection.query("MATCH (n) DETACH DELETE n")
     super
   end
 
