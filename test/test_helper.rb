@@ -6,7 +6,6 @@ require 'rack/test'
 require 'database_cleaner'
 require './lib/index'
 require 'json'
-require 'pry'
 
 DatabaseCleaner.strategy = :truncation
 

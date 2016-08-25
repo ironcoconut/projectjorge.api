@@ -19,3 +19,7 @@ group :test do
   gem 'minitest'
   gem 'database_cleaner'
 end
+
+group :development do
+  gem 'pry'
+end
