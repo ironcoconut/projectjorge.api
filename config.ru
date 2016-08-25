@@ -1,3 +1,3 @@
-require './lib/index.rb'
+require './scripts/load_lib.rb'
 
-map("/api") { run PJApi }
+map("/api") { run Route::PJApi }

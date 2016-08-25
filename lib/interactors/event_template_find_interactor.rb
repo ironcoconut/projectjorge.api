@@ -5,7 +5,7 @@ module Interactor
     end
 
     def event_template_query
-      EventTemplateModel.
+      Model::EventTemplate.
         joins("INNER JOIN user_event_templates as uet on uet.event_template_id = event_templates.event_template_id").
         where("uet.user_id = ?", current_user.id).
         where("uet.blocked IS NOT TRUE").
@@ -26,7 +26,7 @@ module Interactor
     end
 
     def present
-      presenters = event_templates.map { |et| EventTemplatePresenter.new(et).event_template }
+      presenters = event_templates.map { |et| Presenter::EventTemplate.new(et).event_template }
       set_response(:event_templates, presenters)
     end
   end

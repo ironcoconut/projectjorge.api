@@ -2,17 +2,17 @@ module Interactor
   class UserFind < Base
 
     def validate
-      v = Validator.new(body)
+      v = Validator::Base.new(body)
       v.coerce_string('handle')
       @user_data = extract(v)
     end
 
     def user
-      @user ||= UserModel.where(@user_data).first || current_user
+      @user ||= Model::User.where(@user_data).first || current_user
     end
 
     def relation
-      @relation ||= UserRelationModel.related(current_user, user)
+      @relation ||= Model::UserRelation.related(current_user, user)
     end
 
     def authorize
@@ -25,7 +25,7 @@ module Interactor
     end
 
     def present
-      set_response(:user, UserPresenter.new(user).user_token)
+      set_response(:user, Presenter::User.new(user).user_token)
     end
   end
 end

@@ -2,22 +2,22 @@ require 'json'
 require './test/test_helper.rb'
 
 class UserTest < PJTest
+  SECRET = PJConfig.secret
+
   def test_login_with_email
-    secret = PJApi.settings.secret
     user = create_user
     post '/users/login', { email: user.email, password: "123456" }.to_json
     assert last_response.ok?, error_message
     token = rack_mock_session.cookie_jar['user_token']
-    user_hash = JWT.decode(token, secret, true, { :algorithm => 'HS256' }).first
+    user_hash = JWT.decode(token, SECRET, true, { :algorithm => 'HS256' }).first
     assert user.user_id === user_hash['data']['user_id'], 'user ids do not match'
   end
   def test_login_with_handle
-    secret = PJApi.settings.secret
     user = create_user
     post '/users/login', { handle: user.handle, password: "123456" }.to_json
     assert last_response.ok?, error_message
     token = rack_mock_session.cookie_jar['user_token']
-    user_hash = JWT.decode(token, secret, true, { :algorithm => 'HS256' }).first
+    user_hash = JWT.decode(token, SECRET, true, { :algorithm => 'HS256' }).first
     assert user.user_id === user_hash['data']['user_id'], 'user ids do not match'
   end
   def test_user_registration

@@ -1,7 +1,0 @@
-require './lib/interactors/index.rb'
-require './lib/models/index.rb'
-require './lib/presenters/index.rb'
-require './lib/routes/index.rb'
-require './lib/services/index.rb'
-require './lib/validators/index.rb'
-require './lib/graph/index.rb'

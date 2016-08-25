@@ -2,7 +2,7 @@ require 'yaml'
 require 'rake/testtask'
 
 task :console do 
-  exec 'irb -r ./lib/index.rb'
+  exec %{pry -r './scripts/load_lib.rb'}
 end
 
 task :start do

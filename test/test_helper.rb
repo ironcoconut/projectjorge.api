@@ -1,11 +1,13 @@
 ENV['RACK_ENV'] = 'test'
+
 # TODO: what is setting verbose to true?
 $VERBOSE = false
+
 require 'minitest/autorun'
 require 'rack/test'
 require 'database_cleaner'
-require './lib/index'
 require 'json'
+require './scripts/load_lib.rb'
 
 DatabaseCleaner.strategy = :truncation
 
@@ -14,7 +16,7 @@ class PJTest < MiniTest::Test
   include Rack::Test::Methods
 
   def app
-    PJApi
+    Route::PJApi
   end
 
   def before_teardown
@@ -29,7 +31,7 @@ class PJTest < MiniTest::Test
     default_opts = { handle: "g#{@@user_count}", 
                      email: "g@#{@@user_count}.com",
                      password: "123456" }
-    return UserModel.create!(default_opts.merge(opts))
+    return Model::User.create!(default_opts.merge(opts))
   end
 
   def login_user user=nil, pwd='123456'
@@ -51,10 +53,10 @@ class PJTest < MiniTest::Test
     @@et_count ||= 0
     @@et_count += 1
     default_opts = { name: "et#{@@et_count}" }
-    return EventTemplateModel.create!(default_opts.merge(opts))
+    return Model::EventTemplate.create!(default_opts.merge(opts))
   end
 
   def create_event_template_admin event, user
-    return UserEventTemplateModel.create!(admin: true, event_template_id: event.event_template_id, user_id: user.user_id)
+    return Model::UserEventTemplate.create!(admin: true, event_template_id: event.event_template_id, user_id: user.user_id)
   end
 end

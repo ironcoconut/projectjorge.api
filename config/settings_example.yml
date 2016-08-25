@@ -1,1 +1,23 @@
-secret: your secret here
+secret: secret
+  
+db:
+  development:
+    adapter:  postgresql
+    host:     localhost
+    username: username
+    password: password
+    database: project_jorge_dev
+  test:
+    adapter:  postgresql
+    host:     localhost
+    username: username
+    password: password
+    database: project_jorge_test
+
+graph:
+  development:
+    path:     http://localhost:7474
+    username: username
+    password: password
+  test:
+    path:     http://localhost:7575

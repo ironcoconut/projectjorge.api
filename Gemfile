@@ -14,6 +14,9 @@ gem 'jwt'
 gem 'bcrypt'
 gem 'rack-contrib'
 gem 'neo4j-core'
+gem 'normalizr'
+gem 'virtus'
+gem 'require_all'
 
 group :test do
   gem 'minitest'

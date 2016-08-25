@@ -2,7 +2,7 @@ module Interactor
   class UserLogin < Base
 
     def validate
-      v = Validator.new(body)
+      v = Validator::Base.new(body)
       v.coerce_string('handle', 'email', 'phone', 'password') 
       v.all_present('password')
       v.some_present('handle', 'email', 'phone')
@@ -10,7 +10,7 @@ module Interactor
     end
 
     def user
-      @user ||= UserModel.login(@user_data)
+      @user ||= Model::User.login(@user_data)
     end
 
     def authorize
@@ -21,7 +21,7 @@ module Interactor
     end
 
     def present
-      set_response(:user, UserPresenter.new(user).user_token)
+      set_response(:user, Presenter::User.new(user).user_token)
     end
   end
 end

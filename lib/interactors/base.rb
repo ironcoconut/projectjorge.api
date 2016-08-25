@@ -69,7 +69,7 @@ module Interactor
 
     def current_user
       if token['type'] === 'user'
-        @current_user ||= UserModel.where(token['data']).first
+        @current_user ||= Model::User.where(token['data']).first
       else
         nil
       end

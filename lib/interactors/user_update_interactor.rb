@@ -2,7 +2,7 @@ module Interactor
   class UserUpdate < Base
 
     def validate
-      v = Validator.new(body)
+      v = Validator::Base.new(body)
       v.coerce_string('handle', 'email', 'password', 'phone', 'avatar', 'contact_frequency')
       v.coerce_bool('prefer_email', 'prefer_phone')
       v.some_present('handle', 'email', 'password', 'phone', 'avatar', 'prefer_email', 'prefer_phone', 'contact_frequency')
@@ -21,7 +21,7 @@ module Interactor
     end
 
     def present
-      set_response(:user, UserPresenter.new(current_user).user)
+      set_response(:user, Presenter::User.new(current_user).user)
     end
   end
 end

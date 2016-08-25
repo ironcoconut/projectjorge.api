@@ -2,14 +2,14 @@ module Interactor
   class EventTemplateFindOne < Base
 
     def validate
-      v = Validator.new(params)
+      v = Validator::Base.new(params)
       v.coerce_string('id')
       v.all_present('id')
       @event_template_id = extract(v)['id']
     end
 
     def event_template_query
-      EventTemplateModel.
+      Model::EventTemplate.
         joins("INNER JOIN user_event_templates as uet on uet.event_template_id = event_templates.event_template_id").
         where("uet.user_id = ?", current_user.id).
         where("event_templates.event_template_id = ?", @event_template_id).
