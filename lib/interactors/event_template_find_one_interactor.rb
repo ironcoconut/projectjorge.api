@@ -1,12 +1,20 @@
 module Interactor
   class EventTemplateFindOne < Base
 
-    def validate
-      v = Validator::Base.new(params)
-      v.coerce_string('id')
-      v.all_present('id')
-      @event_template_id = extract(v)['id']
+    def main
+      check_extraction do
+        @event_template_id = extract(
+          Mutator::Id.new(params)
+        )[:id]
+      end
+
+      check_current_user
+      check_errors(:event_template)
+
+      set_response(:event_template, event_template)
     end
+
+    private
 
     def event_template_query
       Model::EventTemplate.
@@ -20,18 +28,6 @@ module Interactor
 
     def event_template
       @event_template ||= event_template_query.first
-    end
-
-    def authorize
-      check_current_user
-      check_errors(event_template)
-    end
-
-    def main
-    end
-
-    def present
-      set_response(:event_template, event_template)
     end
   end
 end

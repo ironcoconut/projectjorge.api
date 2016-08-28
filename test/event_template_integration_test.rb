@@ -10,7 +10,7 @@ class EventTemplateIntegrationTest < PJTest
   end
   def test_update
     user = login_user
-    data = {frequency: 'weekly'}
+    data = {name: 'weekly'}
     event_template = create_event_template
     create_event_template_admin(event_template, user)
     post "/event-templates/#{event_template.event_template_id}", data.to_json

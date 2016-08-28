@@ -14,6 +14,9 @@ require 'jwt'
 require 'normalizr'
 require 'virtus'
 
+if ENV['RACK_ENV'] != 'production'
+  require 'pry'
+end
 
 ### NEO4J
 

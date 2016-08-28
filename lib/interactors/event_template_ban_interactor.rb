@@ -1,17 +1,27 @@
 module Interactor
   class EventTemplateBan < Base
 
-    def validate
-      v = Validator::Base.new(params)
-      v.coerce_string('id')
-      v.all_present('id')
-      @event_template_id = extract(v)['id']
+    def main
+      check_extraction do
+        @event_template_id = extract(
+          Mutator::Id.new(params)
+        )[:id]
+        @banned_data = extract(
+          Mutator::UserFind.new(body)
+        )
+      end
 
-      v2 = Validator::Base.new(body)
-      v2.coerce_string('handle', 'email', 'phone', 'user_id')
-      v2.some_present('handle', 'email', 'phone', 'user_id')
-      @banned_data = extract(v2)
+      check_current_user
+      check_errors(:event_template)
+      check_errors(:event_admin)
+      check_errors(:banned)
+      check_errors(:banishment)
+      check_errors(:ban)
+
+      set_response(:event_template_admin, Presenter::User.new(banned).friend)
     end
+
+    private
 
     def event_template
       @event_template ||= Model::EventTemplate.where(event_template_id: @event_template_id).first
@@ -39,22 +49,10 @@ module Interactor
         )
     end
 
-    def authorize
-      check_current_user
-      check_errors(event_template)
-      check_errors(event_admin)
-      check_errors(banned)
-      check_errors(banishment)
-    end
-
-    def main
+    def ban
       banishment.banned = true
       banishment.save
-      check_errors(banishment)
-    end
-
-    def present
-      set_response(:event_template_admin, Presenter::User.new(banned).friend)
+      banishment
     end
   end
 end

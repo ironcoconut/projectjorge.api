@@ -1,8 +1,15 @@
 module Interactor
   class EventTemplateFind < Base
 
-    def validate
+    def main
+      check_current_user
+      event_templates.each { |et| check_errors(et) }
+
+      presenters = event_templates.map { |et| Presenter::EventTemplate.new(et).event_template }
+      set_response(:event_templates, presenters)
     end
+
+    private
 
     def event_template_query
       Model::EventTemplate.
@@ -15,19 +22,6 @@ module Interactor
 
     def event_templates
       @event_templates ||= event_template_query
-    end
-
-    def authorize
-      check_current_user
-      event_templates.each { |et| check_errors(et) }
-    end
-
-    def main
-    end
-
-    def present
-      presenters = event_templates.map { |et| Presenter::EventTemplate.new(et).event_template }
-      set_response(:event_templates, presenters)
     end
   end
 end

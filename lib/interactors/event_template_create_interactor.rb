@@ -1,13 +1,21 @@
 module Interactor
   class EventTemplateCreate < Base
 
-    def validate
-      v = Validator::Base.new(body)
-      v.coerce_string('name', 'type', 'recurring', 'avatar')
-      v.coerce_int('degrees')
-      v.all_present('name')
-      @event_template_data = extract(v)
+    def main
+      check_extraction do
+        @event_template_data = extract(
+          Mutator::EventTemplateCreate.new(body)
+        )
+      end
+
+      check_current_user
+      check_errors(:event_template)
+      check_errors(:event_admin)
+
+      set_response(:event_template, Presenter::EventTemplate.new(event_template).event_template)
     end
+
+    private
 
     def event_template
       @event_template ||= Model::EventTemplate.create(@event_template_data)
@@ -20,19 +28,6 @@ module Interactor
           user_id: current_user.user_id, 
           admin: true
         )
-    end
-
-    def authorize
-      check_current_user
-      check_errors(event_template)
-      check_errors(event_admin)
-    end
-
-    def main
-    end
-
-    def present
-      set_response(:event_template, Presenter::EventTemplate.new(event_template).event_template)
     end
   end
 end

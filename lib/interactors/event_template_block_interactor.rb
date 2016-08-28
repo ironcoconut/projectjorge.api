@@ -1,11 +1,19 @@
 module Interactor
   class EventTemplateBlock < Base
 
-    def validate
-      v = Validator::Base.new(params)
-      v.coerce_string('id')
-      v.all_present('id')
-      @event_template_id = extract(v)['id']
+    def main
+      check_extraction do
+        @event_template_id = extract(
+          Mutator::Id.new(params)
+        )[:id]
+      end
+
+      check_current_user
+      check_errors(:event_template)
+      check_errors(:relation)
+      check_errors(:block)
+
+      set_response(:event_template_blocked, Presenter::EventTemplate.new(event_template).event_template)
     end
 
     def event_template
@@ -20,20 +28,10 @@ module Interactor
         )
     end
 
-    def authorize
-      check_current_user
-      check_errors(event_template)
-      check_errors(relation)
-    end
-
-    def main
+    def block
       relation.blocked = true
       relation.save
-      check_errors(relation)
-    end
-
-    def present
-      set_response(:event_template_blocked, Presenter::EventTemplate.new(event_template).event_template)
+      relation
     end
   end
 end

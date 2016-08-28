@@ -11,7 +11,7 @@ module Model
       self.password_hash = @password
     end
     def self.login(opts)
-      password = opts.delete('password')
+      password = opts.delete(:password)
       user = self.where(opts).first
       return nil if user.nil?
       if (user.password == password)

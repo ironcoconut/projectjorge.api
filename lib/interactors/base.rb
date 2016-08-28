@@ -2,20 +2,8 @@ module Interactor
   class Base
     attr_reader :response, :errors, :token, :body, :params
 
-    def validate
-      raise "Please include a validate function in #{self.class.name}"
-    end
-
-    def authorize
-      raise "Please include an authorize function in #{self.class.name}"
-    end
-
     def main
       raise "Please include a main function in #{self.class.name}"
-    end
-
-    def present
-      raise "Please include a present function in #{self.class.name}"
     end
 
     def success?
@@ -28,51 +16,78 @@ module Interactor
       @token = opts[:token]
       @body = opts[:body]
       @params = opts[:params]
-      @errors = []
+      @errors = {}
 
-      [:validate, :authorize, :main, :present].each { |i| send(i) if @errors.empty? }
+      begin
+        main()
+      rescue Interactor::MainError
+        # errors already recorded
+      end
     end
 
-    def extract validator
-      @errors.concat(validator.errors)
-      validator.results
+    # don't error after extract b/c there might be >1 mutator
+    def extract mutator
+      mutator.validate
+      add_error(mutator.class.name, mutator.errors.to_h)
+      mutator.attributes
     end
 
-    def check_present(item, msg)
-      return if @errors.present?
-      @errors.push(msg) if item.nil?
+    # gather up the extractions and check for errors once done
+    def check_extraction
+      yield
+      raise_error?
     end
 
-    def check_true(item, msg)
-      return if @errors.present?
-      @errors.push(msg) if item != true
+    def check_present(symbol)
+      item = send(symbol)
+      raise_error(symbol, "is nil") if item.nil?
     end
 
-    def check_errors(item, name='item')
-      return if @errors.present?
+    def check_true(symbol)
+      item = send(symbol)
+      raise_error(symbol, "not true") if item != true
+    end
+
+    def check_errors(symbol)
+      item = send(symbol)
       if item.present?
-        @errors.concat(item.errors.full_messages)
+        raise_error(symbol, item.errors.full_messages) if item.invalid?
       else
-        @errors.push("Nil item: #{name}")
+        raise_error(symbol, "is nil")
       end
     end
 
     def check_current_user
-      return if @errors.present?
-      check_errors(current_user, 'No current user')
+      check_errors(:current_user)
     end
 
     def set_response type, data
-      return if @errors.present?
       @response = {type: type, data: data}
     end
 
     def current_user
-      if token['type'] === 'user'
+      if token.present? && token['type'] === 'user'
         @current_user ||= Model::User.where(token['data']).first
       else
         nil
       end
+    end
+
+    def add_error(name, msgs={})
+      if msgs.present?
+        @errors[name] = msgs
+      end
+    end
+
+    def raise_error(name, msgs={})
+      if msgs.present?
+        @errors[name] = msgs
+        raise MainError.new
+      end
+    end
+
+    def raise_error?
+      raise MainError.new if @errors.present?
     end
   end
 end

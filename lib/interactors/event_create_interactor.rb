@@ -1,18 +1,25 @@
 module Interactor
   class EventCreate < Base
 
-    def validate
-      v = Validator::Base.new(body)
-      v.coerce_string('description', 'image')
-      v.coerce_point('location')
-      @event_data = extract(v)
+    def main
+      check_extraction do
+        @event_data = extract(
+          Mutator::EventCreate.new(body)
+        )
+        @event_template_data = extract(
+          Mutator::EventTemplateCreate.new(body)
+        )
+      end
 
-      v2 = Validator::Base.new(body)
-      v2.coerce_string('name', 'recurring', 'avatar')
-      v2.coerce_int('degrees')
-      v2.all_present('name')
-      @event_template_data = extract(v2)
+      check_current_user
+      check_errors(:event_template)
+      check_errors(:event_admin)
+      check_errors(:event)
+
+      set_response(:event_template, Presenter::EventTemplate.new(event_template).event_template)
     end
+
+    private
 
     def event_template
       @event_template ||= Model::EventTemplate.create(@event_template_data)
@@ -29,20 +36,6 @@ module Interactor
 
     def event
       @event ||= Model::Event.create(@event_data.merge({event_template_id: event_template.event_template_id}))
-    end
-
-    def authorize
-      check_current_user
-      check_errors(event_template)
-      check_errors(event_admin)
-      check_errors(event)
-    end
-
-    def main
-    end
-
-    def present
-      set_response(:event_template, Presenter::EventTemplate.new(event_template).event_template)
     end
   end
 end

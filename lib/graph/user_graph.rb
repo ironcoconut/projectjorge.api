@@ -12,5 +12,6 @@ module Graph
                         return distinct m.id as id, min(length(p)) as l 
                         order by l")
     end
+    # TODO: query to find min distance between 2 users
   end
 end
