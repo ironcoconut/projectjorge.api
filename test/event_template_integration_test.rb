@@ -8,6 +8,18 @@ class EventTemplateIntegrationTest < PJTest
     put '/event-templates', data.to_json
     assert last_response.ok?, error_message
   end
+  def test_create_event
+    user = login_user
+    data = {
+      description: 'aweluck',
+      location: [1,2],
+      image: 'some url'
+    }
+    event_template = create_event_template
+    create_event_template_admin(event_template, user)
+    post "/event-templates/#{event_template.event_template_id}/event", data.to_json
+    assert last_response.ok?, error_message
+  end
   def test_update
     user = login_user
     data = {name: 'weekly'}

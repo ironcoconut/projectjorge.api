@@ -52,11 +52,18 @@ class PJTest < MiniTest::Test
   def create_event_template opts={}
     @@et_count ||= 0
     @@et_count += 1
-    default_opts = { name: "et#{@@et_count}" }
+    default_opts = { name: "et#{@@et_count}", degrees: 2 }
     return Model::EventTemplate.create!(default_opts.merge(opts))
   end
 
   def create_event_template_admin event, user
     return Model::UserEventTemplate.create!(admin: true, event_template_id: event.event_template_id, user_id: user.user_id)
+  end
+
+  def create_event opts={}
+    event_template = opts[:event_template] || create_event_template
+    admin = opts[:admin] || create_user
+    create_event_template_admin(event_template, admin)
+    return Model::Event.create!(event_template_id: event_template.event_template_id)
   end
 end

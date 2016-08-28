@@ -1,5 +1,5 @@
 module Mutator
-  class EventCreate < Base
+  class EventUpdate < Base
     attribute :description, String
     normalize :description
 

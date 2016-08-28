@@ -77,6 +77,7 @@ module Route
       post("/:id/ban")     { base_action(Interactor::EventTemplateBan.new(interactor_data)) }
       post("/:id/block")   { base_action(Interactor::EventTemplateBlock.new(interactor_data)) }
       post("/:id/follow")  { base_action(Interactor::EventTemplateFollow.new(interactor_data)) }
+      post("/:id/event")   { base_action(Interactor::EventTemplateCreateEvent.new(interactor_data)) }
       get("/:id")          { base_action(Interactor::EventTemplateFindOne.new(interactor_data)) }
       post("/:id")         { base_action(Interactor::EventTemplateUpdate.new(interactor_data)) }
       get()                { base_action(Interactor::EventTemplateFind.new(interactor_data)) }
