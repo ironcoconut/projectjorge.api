@@ -67,30 +67,22 @@ module Route
       post("/login")  { user_auth(Interactor::UserLogin.new(interactor_data)) }
       post("/friend") { base_action(Interactor::UserFriend.new(interactor_data)) }
       post("/block")  { base_action(Interactor::UserBlock.new(interactor_data)) }
+      post("/follow") { base_action(Interactor::UserFollow.new(interactor_data)) }
+      post("/add")    { base_action(Interactor::UserAdd.new(interactor_data)) }
       get()           { base_action(Interactor::UserFind.new(interactor_data)) }
       put()           { base_action(Interactor::UserUpdate.new(interactor_data)) }
       post()          { user_auth(Interactor::UserRegistration.new(interactor_data)) }
     end
 
-    namespace "/event-templates" do
-      post("/:id/appoint") { base_action(Interactor::EventTemplateAppoint.new(interactor_data)) }
-      post("/:id/ban")     { base_action(Interactor::EventTemplateBan.new(interactor_data)) }
-      post("/:id/block")   { base_action(Interactor::EventTemplateBlock.new(interactor_data)) }
-      post("/:id/follow")  { base_action(Interactor::EventTemplateFollow.new(interactor_data)) }
-      post("/:id/event")   { base_action(Interactor::EventTemplateCreateEvent.new(interactor_data)) }
-      get("/:id")          { base_action(Interactor::EventTemplateFindOne.new(interactor_data)) }
-      post("/:id")         { base_action(Interactor::EventTemplateUpdate.new(interactor_data)) }
-      get()                { base_action(Interactor::EventTemplateFind.new(interactor_data)) }
-      put()                { base_action(Interactor::EventTemplateCreate.new(interactor_data)) }
-    end
-
     namespace "/events" do
-      post("/:id/block")   { base_action(Interactor::EventBlock.new(interactor_data)) }
+      post("/:id/invite")  { base_action(Interactor::EventInvite.new(interactor_data)) }
       post("/:id/accept")  { base_action(Interactor::EventAccept.new(interactor_data)) }
+      post("/:id/decline") { base_action(Interactor::EventDecline.new(interactor_data)) }
+      post("/:id/copy")    { base_action(Interactor::EventCopy.new(interactor_data)) }
       get("/:id")          { base_action(Interactor::EventFindOne.new(interactor_data)) }
-      post("/:id")         { base_action(Interactor::EventUpdate.new(interactor_data)) }
+      put("/:id")          { base_action(Interactor::EventUpdate.new(interactor_data)) }
       get()                { base_action(Interactor::EventFind.new(interactor_data)) }
-      put()                { base_action(Interactor::EventCreate.new(interactor_data)) }
+      post()               { base_action(Interactor::EventCreate.new(interactor_data)) }
     end
   end
 end

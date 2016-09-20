@@ -1,0 +1,33 @@
+module Interactor
+  class EventAccept < Base
+
+    def main
+      check_extraction do
+        @event_id = extract_id(
+          Mutator::Id.new(params)
+        )
+      end
+
+      check_current_user
+      check_errors(:rsvp)
+      check_errors(:accept_rsvp)
+
+      set_response(:rsvp, Presenter::RSVP.new(rsvp).rsvp)
+    end
+
+    private
+
+    def rsvp
+      @rsvp ||= Model::RSVP.where(event_id: @event_id, pollux_id: current_user.id).first_or_create
+    end
+
+    # Need a view event policy
+
+    def accept_rsvp
+      rsvp.declined = false
+      rsvp.accepted = true
+      rsvp.save
+      rsvp
+    end
+  end
+end

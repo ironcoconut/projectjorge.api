@@ -32,6 +32,10 @@ module Interactor
       mutator.attributes
     end
 
+    def extract_id mutator
+      extract(mutator)[:id]
+    end
+
     # gather up the extractions and check for errors once done
     def check_extraction
       yield

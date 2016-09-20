@@ -2,7 +2,14 @@ require 'json'
 require './test/test_helper.rb'
 
 class EventIntegrationTest < PJTest
-  def test_create_new
+  def assert_action_route_ok(action)
+    login_user
+    event = create_event()
+    post "events/#{event.id}/#{action}"
+    assert last_response.ok?, error_message
+  end
+
+  def test_create
     login_user
     data = {
       name: 'event',
@@ -13,46 +20,57 @@ class EventIntegrationTest < PJTest
       location: [1,2],
       image: 'some url'
     }
-    put '/events', data.to_json
+    post '/events', data.to_json
     assert last_response.ok?, error_message
   end
 
-  # Create event from an existing template occurs in event-templates
-
   def test_read_one
     admin = login_user
-    event = create_event(admin: admin)
-    get "events/#{event.event_id}"
+    rsvp = create_event_admin_rsvp(admin)
+    get "events/#{rsvp.event_id}"
     assert last_response.ok?, error_message
   end
 
   def test_read
     admin = create_user
-    event = create_event(admin: admin)
+    create_event_admin_rsvp(admin)
     user = login_user
-    Graph::User.create_relationship(admin.user_id, user.user_id, :FRIENDED)
+    Graph::User.create_relationship(admin.id, user.id, :FRIENDED)
     get "events"
     assert last_response.ok?, error_message
   end
 
   def test_update
     admin = login_user
-    event = create_event(admin: admin)
+    rsvp = create_event_admin_rsvp(admin)
     data = {
       description: 'aweluck',
       location: [1,2],
-      image: 'some url'
+      avatar: 'some url'
     }
-    post "events/#{event.event_id}", data.to_json
+    put "events/#{rsvp.event_id}", data.to_json
     assert last_response.ok?, error_message
   end
 
-  def test_block
+  def test_copy
+    assert_action_route_ok('copy')
   end
 
   def test_accept
+    assert_action_route_ok('accept')
+  end
+
+  def test_decline
+    assert_action_route_ok('decline')
   end
 
   def test_invite
+    admin = login_user
+    rsvp = create_event_admin_rsvp(admin)
+    data = {
+      handle: create_user.handle
+    }
+    post "events/#{rsvp.event_id}/invite", data.to_json
+    assert last_response.ok?, error_message
   end
 end

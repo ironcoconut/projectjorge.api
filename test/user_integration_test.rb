@@ -10,7 +10,7 @@ class UserTest < PJTest
     assert last_response.ok?, error_message
     token = rack_mock_session.cookie_jar['user_token']
     user_hash = JWT.decode(token, SECRET, true, { :algorithm => 'HS256' }).first
-    assert user.user_id === user_hash['data']['user_id'], 'user ids do not match'
+    assert user.id === user_hash['data']['id'], 'user ids do not match'
   end
   def test_login_with_handle
     user = create_user
@@ -18,7 +18,7 @@ class UserTest < PJTest
     assert last_response.ok?, error_message
     token = rack_mock_session.cookie_jar['user_token']
     user_hash = JWT.decode(token, SECRET, true, { :algorithm => 'HS256' }).first
-    assert user.user_id === user_hash['data']['user_id'], 'user ids do not match'
+    assert user.id === user_hash['data']['id'], 'user ids do not match'
   end
   def test_user_registration
     user_hash = {

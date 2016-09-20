@@ -5,12 +5,16 @@ task :console do
   exec %{pry -r './scripts/load_lib.rb'}
 end
 
-task :start do
-  exec 'rackup -p 4000'
+task :neo4j do
+  exec %{sudo service neo4j restart}
 end
 
-task :env do
-  @env = YAML::load_file(File.join(__dir__, './config/database.yml'))['development']
+task :neo4j_test do
+  exec %{NEO4J_CONF=/home/ironcoconut/.neo4j/test neo4j start}
+end
+
+task :start do
+  exec 'rackup -p 4201'
 end
 
 Rake::TestTask.new do |t|

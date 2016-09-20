@@ -1,8 +1,8 @@
 module Mutator
   class UserFind < Base
 
-    attribute :user_id, String
-    normalize :user_id
+    attribute :id, String
+    normalize :id
 
     attribute :handle, String
     normalize :handle
@@ -13,7 +13,7 @@ module Mutator
     attribute :phone, String
     normalize :phone, :with => :phone
 
-    set_check_some('handle', 'email', 'phone', 'user_id')
+    set_check_some('handle', 'email', 'phone', 'id')
 
   end
 end

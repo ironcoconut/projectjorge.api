@@ -4,43 +4,68 @@ module Interactor
     def main
       check_current_user
 
-      set_response(:events, events.map(&:attributes))
+      set_response(:events, events)
     end
 
     private
 
     def events
-      @events ||= all_events - banned_events
+      @events ||= {
+        yours: format(your_events),
+        friends: format(friends_events),
+        friends_of_friends: format(friends_of_friends_events),
+        public: format(public_events)
+      }
     end
 
-    def all_events
-      # check degree of seperation
-      @events ||= Model::Event.
-        joins("INNER JOIN user_event_templates uet on uet.event_template_id = events.event_template_id").
-        joins("INNER JOIN event_templates et on et.event_template_id = events.event_template_id").
-        where("uet.admin IS TRUE OR uet.followed IS TRUE").
-        where("uet.blocked IS NOT TRUE OR uet.banned IS NOT TRUE").
-        where("(uet.user_id in (?) AND et.degrees = 2) OR
-               (uet.user_id in (?) AND et.degrees = 1) OR
-               (uet.user_id in (?) AND et.degrees = 0)", 
-               user_relation_ids.select { |i| i.l < 3 }.map(&:id), 
-               user_relation_ids.select { |i| i.l < 2 }.map(&:id), 
-               [current_user.user_id]).
-        select("events.event_id").
+    def format events
+      events.map { |evt| Presenter::Event.new(evt).event }
+    end
+
+    def your_events
+      @your_events ||= Model::Event.
+        joins("INNER JOIN rsvps on rsvps.event_id = events.id").
+        where("rsvps.declined IS NOT TRUE").
+        where("rsvps.pollux_id = ?", current_user.id).
+        select("events.id").
         distinct
     end
 
-    def banned_events
-      @banned_events ||= Model::Event.
-        joins("INNER JOIN user_event_templates uet on uet.event_template_id = events.event_template_id").
-        where("uet.blocked IS TRUE OR uet.banned IS TRUE").
-        where('uet.user_id' => current_user.user_id).
-        select('events.event_id').
-        distinct
+    def friends_events
+      @friends_events ||= friends_ids.present? ? load_friends_events : []
+    end
+
+    def load_friends_events
+      Model::Event.
+        joins("INNER JOIN rsvps on rsvps.event_id = events.id").
+        where("rsvps.admin IS TRUE").
+        where("rsvps.pollux_id in (?)", friends_ids).
+        where("events.degrees = 1")
+    end
+
+    def friends_of_friends_events
+      @friends_of_friends_events ||= user_relation_ids.present? ? load_friends_of_friends_events : []
+    end
+
+    def load_friends_of_friends_events
+      @friends_of_friends_events ||= Model::Event.
+        joins("INNER JOIN rsvps on rsvps.event_id = events.id").
+        where("rsvps.admin IS TRUE").
+        where("rsvps.pollux_id in (?)", user_relation_ids.map(&:id)).
+        where("events.degrees = 2")
+    end
+
+    def public_events
+      @public_events ||= Model::Event.
+        where("events.degrees IS NULL")
     end
 
     def user_relation_ids
-      @user_relations ||= Graph::User.load_relations(current_user.user_id,).to_a
+      @user_relations ||= Graph::User.load_relations(current_user.id).to_a
+    end
+
+    def friends_ids
+      @friends_ids ||= user_relation_ids.select { |i| i.l == 1 }.map(&:id)
     end
   end
 end

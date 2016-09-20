@@ -49,21 +49,23 @@ class PJTest < MiniTest::Test
     @body ||= JSON.parse(last_response.body)
   end
 
-  def create_event_template opts={}
-    @@et_count ||= 0
-    @@et_count += 1
-    default_opts = { name: "et#{@@et_count}", degrees: 2 }
-    return Model::EventTemplate.create!(default_opts.merge(opts))
+  def create_event_admin_rsvp admin=nil, event=nil
+    admin ||= create_user
+    event ||= create_event
+    Model::RSVP.create!(event_id: event.id, pollux_id: admin.id, admin: true)
   end
 
-  def create_event_template_admin event, user
-    return Model::UserEventTemplate.create!(admin: true, event_template_id: event.event_template_id, user_id: user.user_id)
+  def create_rsvp opts={}
+    event = opts[:event] || create_event
+    castor = opts[:castor] || create_user
+    pollux = opts[:pollux] || create_user
+    rsvp = opts.
+      select { |k| [:accepted, :declined, :admin].include?(k) }.
+      merge({event_id: event.id, castor_id: castor.id, pollux_id: pollux.id})
+    return Model::RSVP.create!(rsvp)
   end
 
   def create_event opts={}
-    event_template = opts[:event_template] || create_event_template
-    admin = opts[:admin] || create_user
-    create_event_template_admin(event_template, admin)
-    return Model::Event.create!(event_template_id: event_template.event_template_id)
+    return Model::Event.create!(opts)
   end
 end
