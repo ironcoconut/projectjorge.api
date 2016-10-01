@@ -22,20 +22,11 @@ module Interactor
     end
 
     def not_blocked
-      (admin_ids & blocked_ids).empty?
+      (admin_ids & current_user.blocked_ids).empty?
     end
 
     def admin_ids
-      @admin_ids ||= Model::RSVP.
-        where(
-          event_id: event.id, 
-          admin: true
-        ).
-        pluck(:pollux_id)
-    end
-
-    def blocked_ids
-      @blocked_ids ||= Graph::User.blocked_relations(current_user.id).map(&:id)
+      @admin_ids ||= Model::RSVP.event_admin_ids(event)
     end
   end
 end

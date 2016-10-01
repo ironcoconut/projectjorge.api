@@ -3,7 +3,7 @@ module Interactor
 
     def main
       check_extraction do
-        @event_data = extract_id(
+        @event_data = extract(
           Mutator::Event.new(body)
         )
       end

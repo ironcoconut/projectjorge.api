@@ -20,7 +20,7 @@ module Interactor
 
       begin
         main()
-      rescue Interactor::MainError
+      rescue CheckFailedError
         # errors already recorded
       end
     end
@@ -62,7 +62,7 @@ module Interactor
     end
 
     def check_current_user
-      check_errors(:current_user)
+      check_present(:current_user)
     end
 
     def set_response type, data
@@ -70,8 +70,10 @@ module Interactor
     end
 
     def current_user
+      return @current_user if @current_user.present?
+
       if token.present? && token['type'] === 'user'
-        @current_user ||= Model::User.where(token['data']).first
+        @current_user ||= CompositeUser.new(token['data'])
       else
         nil
       end
@@ -86,12 +88,86 @@ module Interactor
     def raise_error(name, msgs={})
       if msgs.present?
         @errors[name] = msgs
-        raise MainError.new
+        raise CheckFailedError.new
       end
     end
 
     def raise_error?
-      raise MainError.new if @errors.present?
+      raise CheckFailedError.new if @errors.present?
+    end
+
+    # This is a composite class. It should live elsewhere.
+    class CompositeUser
+
+      attr_reader :token, :model, :graph
+
+      delegate :id, :to => :model
+      delegate :friends_ids, :friends_of_friends_ids, :relations_ids, :blocked_ids, :to => :graph
+
+      def initialize(token)
+        @token = token
+        @model = Model::User.where(token).first
+        @graph = Graph::User.new(token)
+      end
+
+      def events
+        @events ||= Model::Event.
+          joins("INNER JOIN rsvps on rsvps.event_id = events.id").
+          where("rsvps.declined IS NOT TRUE").
+          where("rsvps.pollux_id = ?", id).
+          select("events.id").
+          distinct
+      end
+
+      def friends_events
+        @friends_events ||= friends_ids.present? ? load_friends_events : []
+      end
+
+      def load_friends_events
+        Model::Event.
+          joins("INNER JOIN rsvps on rsvps.event_id = events.id").
+          where("rsvps.admin IS TRUE").
+          where("rsvps.pollux_id in (?)", friends_ids).
+          where("events.degrees > 0")
+      end
+
+      def friends_of_friends_events
+        @friends_of_friends_events ||= friends_of_friends_ids.present? ? load_friends_of_friends_events : []
+      end
+
+      def load_friends_of_friends_events
+        @friends_of_friends_events ||= Model::Event.
+          joins("INNER JOIN rsvps on rsvps.event_id = events.id").
+          where("rsvps.admin IS TRUE").
+          where("rsvps.pollux_id in (?)", friends_of_friends_ids).
+          where("events.degrees > 1")
+      end
+
+      def public_events
+        @public_events ||= blocked_ids.present? ? public_events_filter_blocked : all_public_events
+      end
+
+      def load_public_events
+        # is this if necessary?
+        if(blocked_ids.present?)
+          all_public_events.where.not(id: blocked_event_ids)
+        else
+          all_public_events
+        end
+      end
+
+      def all_public_events
+        Model::Event.
+          joins("INNER JOIN rsvps on rsvps.event_id = events.id").
+          where("events.degrees IS NULL")
+      end
+
+      def blocked_event_ids
+        Model::RSVP.
+          where("admin IS TRUE").
+          where("pollux_id in (?)", blocked_ids).
+          select("event_id")
+      end
     end
   end
 end

@@ -4,7 +4,7 @@ module Interactor
     def main
       check_current_user
 
-      set_response(:user, Presenter::User.new(current_user).user_token)
+      set_response(:user, Presenter::User.new(current_user.model).user_token)
     end
 
     def user

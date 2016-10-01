@@ -11,14 +11,18 @@ module Interactor
       check_current_user
       check_errors(:update_user)
 
-      set_response(:user, Presenter::User.new(current_user).user)
+      set_response(:user, Presenter::User.new(user_model).user)
     end
 
     private
 
     def update_user
-      current_user.update(@user_data)
-      current_user
+      user_model.update(@user_data)
+      user_model
+    end
+
+    def user_model
+      current_user.model
     end
   end
 end
