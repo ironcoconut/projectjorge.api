@@ -5,7 +5,7 @@ module Mutator
     normalize :handle
 
     attribute :email, String
-    normalize :email
+    normalize :email, :with => :downcase
 
     # TODO: add password confimation field? or remove password completely for email based login?
     attribute :password, String

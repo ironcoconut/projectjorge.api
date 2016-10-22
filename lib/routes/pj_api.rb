@@ -41,7 +41,7 @@ module Route
           json interactor.response
         else
           status 401
-          body interactor.errors
+          json interactor.errors
         end
       end
       def user_auth(interactor)
@@ -50,7 +50,7 @@ module Route
           json interactor.response
         else
           status 401
-          body interactor.errors
+          json interactor.errors
         end
       end
     end

@@ -4,21 +4,31 @@ require './test/test_helper.rb'
 class UserTest < PJTest
   SECRET = PJConfig.secret
 
-  def test_login_with_email
-    user = create_user
-    post '/users/login', { email: user.email, password: "123456" }.to_json
+  def assert_login_success(user)
     assert last_response.ok?, error_message
+
     token = rack_mock_session.cookie_jar['user_token']
     user_hash = JWT.decode(token, SECRET, true, { :algorithm => 'HS256' }).first
     assert user.id === user_hash['data']['id'], 'user ids do not match'
   end
+
+  def test_login_with_email
+    user = create_user
+    post '/users/login', { identifier: user.email, password: "123456" }.to_json
+
+    assert_login_success(user)
+  end
   def test_login_with_handle
     user = create_user
-    post '/users/login', { handle: user.handle, password: "123456" }.to_json
-    assert last_response.ok?, error_message
-    token = rack_mock_session.cookie_jar['user_token']
-    user_hash = JWT.decode(token, SECRET, true, { :algorithm => 'HS256' }).first
-    assert user.id === user_hash['data']['id'], 'user ids do not match'
+    post '/users/login', { identifier: user.handle, password: "123456" }.to_json
+
+    assert_login_success(user)
+  end
+  def test_login_with_phone
+    user = create_user
+    post '/users/login', { identifier: user.phone, password: "123456" }.to_json
+
+    assert_login_success(user)
   end
   def test_user_registration
     user_hash = {

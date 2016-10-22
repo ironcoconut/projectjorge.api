@@ -8,7 +8,7 @@ module Mutator
     normalize :handle
 
     attribute :email, String
-    normalize :email
+    normalize :email, :with => :downcase
 
     attribute :phone, String
     normalize :phone, :with => :phone

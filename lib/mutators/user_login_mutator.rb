@@ -1,20 +1,30 @@
 module Mutator
   class UserLogin < Base
 
+    EmailRegex = /^.+@.+\..+$/
+    PhoneRegex = /^\d+$/
+
     attribute :password, String
     normalize :password
 
-    attribute :handle, String
-    normalize :handle
+    attribute :identifier, String
+    normalize :identifier
 
-    attribute :email, String
-    normalize :email
+    set_check_all('password', 'identifier')
 
-    attribute :phone, String
-    normalize :phone, :with => :phone
+    def attributes
+      data = { password: password }
 
-    set_check_some('handle', 'email', 'phone')
-    set_check_all('password')
+      case identifier
+      when EmailRegex
+        data[:email] = identifier
+      when PhoneRegex
+        data[:phone] = identifier
+      else
+        data[:handle] = identifier
+      end
 
+      return data
+    end
   end
 end

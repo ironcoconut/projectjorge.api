@@ -5,7 +5,7 @@ module Mutator
     normalize :handle
 
     attribute :email, String
-    normalize :email
+    normalize :email, :with => :downcase
 
     attribute :password, String
     normalize :password

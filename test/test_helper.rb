@@ -30,13 +30,14 @@ class PJTest < MiniTest::Test
     @@user_count += 1
     default_opts = { handle: "g#{@@user_count}", 
                      email: "g@#{@@user_count}.com",
+                     phone: "5555555#{@@user_count}",
                      password: "123456" }
     return Model::User.create!(default_opts.merge(opts))
   end
 
   def login_user user=nil, pwd='123456'
     user ||=create_user
-    post '/users/login', {email: user.email, password: pwd }.to_json
+    post '/users/login', {identifier: user.email, password: pwd }.to_json
     set_cookie("user_token=#{rack_mock_session.cookie_jar['user_token']}")
     return user
   end
