@@ -1,4 +1,5 @@
 secret: secret
+assets_path: path/to/assets
   
 db:
   development:
