@@ -44,15 +44,15 @@ module Graph
       @user_id = token[:id]
     end
 
-    def friends_ids
-      @friends_ids ||= relations_ids.select { |i| i.l == 1 }.map(&:id)
+    def friend_ids
+      @friends_ids ||= relation_ids.select { |i| i.l == 1 }.map(&:id)
     end
 
-    def friends_of_friends_ids
-      @friends_of_friends_ids ||= relations_ids.select { |i| i.l == 2 }.map(&:id)
+    def neighbor_ids
+      @friends_of_friends_ids ||= relation_ids.select { |i| i.l == 2 }.map(&:id)
     end
 
-    def relations_ids
+    def relation_ids
       @user_relations ||= self.class.load_relations(user_id).to_a
     end
 

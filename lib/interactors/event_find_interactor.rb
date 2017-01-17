@@ -13,15 +13,13 @@ module Interactor
 
     def events
       @events ||= {
-        yours: format(current_user.events),
-        friends: format(current_user.friends_events),
-        friends_of_friends: format(current_user.friends_of_friends_events),
-        public: format(current_user.public_events)
+        upcoming: format(current_user.upcoming_events),
+        invitations: format(current_user.invitations)
       }
     end
 
     def format events
-      events.map { |evt| Presenter::Event.new(evt).event }
+      events.map { |evt| Presenter::Event.new(evt).list_element }
     end
   end
 end

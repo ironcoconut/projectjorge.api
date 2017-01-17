@@ -22,7 +22,7 @@ CREATE TABLE events
   name varchar(255),
   avatar varchar(255),
   description text,
-  location point,
+  location varchar(255),
   degrees int,
   starts_at timestamp,
   ends_at timestamp,

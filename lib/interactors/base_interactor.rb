@@ -102,7 +102,7 @@ module Interactor
       attr_reader :token, :model, :graph
 
       delegate :id, :to => :model
-      delegate :friends_ids, :friends_of_friends_ids, :relations_ids, :blocked_ids, :to => :graph
+      delegate :friend_ids, :neighbor_ids, :relation_ids, :blocked_ids, :to => :graph
 
       def initialize(token)
         @token = token
@@ -110,63 +110,26 @@ module Interactor
         @graph = Graph::User.new(token)
       end
 
-      def events
+      def upcoming_events
         @events ||= Model::Event.
           joins("INNER JOIN rsvps on rsvps.event_id = events.id").
           where("rsvps.declined IS NOT TRUE").
+          where("rsvps.accepted IS TRUE").
           where("rsvps.pollux_id = ?", id).
-          select("events.id").
+          where("events.ends_at > ?", Time.now).
+          select("events.*, rsvps.admin").
           distinct
       end
 
-      def friends_events
-        @friends_events ||= friends_ids.present? ? load_friends_events : []
-      end
-
-      def load_friends_events
-        Model::Event.
+      def invitations
+        @invitations ||= Model::Event.
           joins("INNER JOIN rsvps on rsvps.event_id = events.id").
-          where("rsvps.admin IS TRUE").
-          where("rsvps.pollux_id in (?)", friends_ids).
-          where("events.degrees > 0")
-      end
-
-      def friends_of_friends_events
-        @friends_of_friends_events ||= friends_of_friends_ids.present? ? load_friends_of_friends_events : []
-      end
-
-      def load_friends_of_friends_events
-        @friends_of_friends_events ||= Model::Event.
-          joins("INNER JOIN rsvps on rsvps.event_id = events.id").
-          where("rsvps.admin IS TRUE").
-          where("rsvps.pollux_id in (?)", friends_of_friends_ids).
-          where("events.degrees > 1")
-      end
-
-      def public_events
-        @public_events ||= blocked_ids.present? ? public_events_filter_blocked : all_public_events
-      end
-
-      def load_public_events
-        # is this if necessary?
-        if(blocked_ids.present?)
-          all_public_events.where.not(id: blocked_event_ids)
-        else
-          all_public_events
-        end
-      end
-
-      def all_public_events
-        Model::Event.
-          joins("INNER JOIN rsvps on rsvps.event_id = events.id").
-          where("events.degrees IS NULL")
-      end
-
-      def blocked_event_ids
-        Model::RSVP.
-          where("admin IS TRUE").
-          where("pollux_id in (?)", blocked_ids).
-          select("event_id")
+          where("rsvps.declined IS NOT TRUE").
+          where("rsvps.accepted IS NOT TRUE").
+          where("rsvps.pollux_id = ?", id).
+          where("events.ends_at > ?", Time.now).
+          select("events.*, rsvps.admin").
+          distinct
       end
     end
   end
